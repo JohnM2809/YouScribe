@@ -4,6 +4,13 @@ from AI import chat
 import requests
 import html2text
 import re
+import google.generativeai as genai
+import os
+genai.configure(api_key='AIzaSyAAufJESqqpF6HT4-zdMiTyS4f2Rvq6yJE')
+model = genai.GenerativeModel("gemini-1.5-flash")
+def chat(text):
+    response = model.generate_content(text)
+    return response.text
 def url_to_plain_text(url):
 
     response = requests.get(url)
