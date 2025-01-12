@@ -1,6 +1,5 @@
 import customtkinter
 from webscout import YTTranscriber
-from AI import chat
 import requests
 import html2text
 import re
