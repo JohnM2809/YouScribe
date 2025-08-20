@@ -27,7 +27,7 @@ web_link = "https://www.example.com"
 
 yt = YTTranscriber()
 import google.generativeai as genai
-genai.configure(api_key='AIzaSyAAufJESqqpF6HT4-zdMiTyS4f2Rvq6yJE')
+genai.configure(api_key="YOUR_API_KEY")
 model = genai.GenerativeModel("gemini-1.5-flash")
 def chat(text):
     response = model.generate_content(text)
