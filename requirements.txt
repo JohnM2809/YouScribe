@@ -1,5 +1,5 @@
-webscout==6.2
-customtkinter==5.2.2
-requests==2.32.3
-html2text==2024.2.26
-google-generativeai==0.8.3
+customtkinter
+requests
+html2text
+google-genai
+youtube_transcipt_api
