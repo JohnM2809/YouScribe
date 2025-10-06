@@ -1,14 +1,18 @@
 import customtkinter
-from webscout import YTTranscriber
 import requests
 import html2text
 import re
-import google.generativeai as genai
+from google import genai
 import os
-genai.configure(api_key="YOUR_API_KEY")
-model = genai.GenerativeModel("gemini-1.5-flash")
+from youtube_transcript_api import YouTubeTranscriptApi
+
+ytt_api = YouTubeTranscriptApi()
+client = genai.Client(api_key="YOUR_API_KEY")
 def chat(text):
-    response = model.generate_content(text)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=(text),
+    )
     return response.text
 def url_to_plain_text(url):
     response = requests.get(url)
@@ -16,11 +20,6 @@ def url_to_plain_text(url):
     text_maker = html2text.HTML2Text()
     plain_text = text_maker.handle(response.text)
     return plain_text
-yt = YTTranscriber()
-def chat(text):
-    response = model.generate_content(text)
-    return response.text
-
 customtkinter.set_appearance_mode("Dark") 
 customtkinter.set_default_color_theme("green") 
 def youtube_parser(url):
@@ -29,17 +28,13 @@ def youtube_parser(url):
     return match[7] if match and len(match[7]) == 11 else False
 
 def transcribe(video1_url):
-    
     if "youtube.com" in video1_url or "youtu.be" in video1_url:
-        video_url=f"https://www.youtube.com/watch?v={youtube_parser(video1_url)}"
-        transcript = yt.get_transcript(video_url, languages=None) 
-        text = ""
-        for i in transcript:
-            text += " " + f"{i['text']}"
-        print(text)
-        R = chat(f"Convert this video transcript into a readable article, explaining every single thing in the transcript. It must be understandable in detail, it must cover everything in detail. Transcript -  {text}")
+        snippeto=ytt_api.fetch(youtube_parser(video1_url))
+        transcript=" ".join(snippet.text for snippet in snippeto.snippets)
+        print(transcript)
+        R = chat(f"Convert this video transcript into a readable simple and short article, explaining every single thing in the transcript. It must be understandable in detail, it must cover everything in detail. Transcript -  {transcript}")
+        
         return R
-    elif '.com' not in video_url:return "Please enter a video or article url."
     else:
         text=url_to_plain_text(video1_url)
         R=chat(f"Summarise this text or article. There may be useless hyperlinks and all, but ignore those. {text} ")
@@ -47,9 +42,9 @@ def transcribe(video1_url):
 
 app = customtkinter.CTk()
 app.geometry("866x650")
-app.title("YouTube Transcriber & Summarizer")
+app.title("YouScribe")
 
-title_label = customtkinter.CTkLabel(app, text="YouTube Transcriber & Summarizer", justify="center")
+title_label = customtkinter.CTkLabel(app, text="YouScribe", justify="center")
 title_label.configure(font=("Segoe UI Variable Display", 40, "bold"))
 title_label.pack(pady=20) 
 
@@ -65,9 +60,9 @@ def button_function():
     global text
     link = entry.get()
     if not link.strip():
-        result_label.configure(text="Error: Please enter a valid YouTube link!", text_color="red")
+        result_label.configure(text="Error: Please enter a valid YouTube link!", text_color="orange")
         return
-    result_label.configure(text="Processing...", text_color="orange")
+    result_label.configure(text="Error! Check console for details...", text_color="orange")
     text = transcribe(link)
     result_label.configure(text="Transcription Complete!", text_color="green")
     result_textbox.delete("0.0", "end")
